@@ -1,0 +1,1 @@
+docker exec -it neo4j_rag-ollama-1 ollama pull llama3.2:3b
