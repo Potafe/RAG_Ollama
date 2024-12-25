@@ -18,24 +18,23 @@ from typing import List, Any
 from utils import BaseLogger, extract_title_and_question
 
 
-def load_embedding_model(logger=BaseLogger(), config={}):
-    try:
+def load_embedding_model(embedding_model_name: str, logger=BaseLogger(), config={}):
+    if embedding_model_name == "ollama":
         embeddings = OllamaEmbeddings(
-            base_url=config.get('ollama_base_url', 'http://ollama:11434/'),
-            model="llama3.2:3b"
+            base_url=config["ollama_base_url"], model="llama3.2:3b"
         )
-        dimension = 4096
-        logger.info("Embedding: Using Ollama")
-        return embeddings, dimension
-    except Exception as e:
-        logger.error(f"Failed to connect to Ollama: {str(e)}")
-        raise
+        # Ensure the embedding dimension is set correctly
+        dimension = 4096  # Match this value with Neo4j's configuration
+        logger.info(f"Embedding: Using Ollama with dimension {dimension}")
+    return embeddings, dimension
+
 
 
 def load_llm(llm_name: str, logger=BaseLogger(), config={}):
     logger.info(f"LLM: Using Ollama: {llm_name}")
     return ChatOllama(
         temperature=0,
+        base_url=config["ollama_base_url"],
         model=llm_name,
         streaming=True,
         # seed=2,
@@ -43,6 +42,7 @@ def load_llm(llm_name: str, logger=BaseLogger(), config={}):
         top_p=0.3,  # Higher value (0.95) will lead to more diverse text, while a lower value (0.5) will generate more focused text.
         num_ctx=3072,  # Sets the size of the context window used to generate the next token.
     )
+
 
 def configure_llm_only_chain(llm):
     # LLM only response
