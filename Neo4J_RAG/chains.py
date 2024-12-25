@@ -21,7 +21,7 @@ from utils import BaseLogger, extract_title_and_question
 def load_embedding_model(embedding_model_name: str, logger=BaseLogger(), config={}):
     if embedding_model_name == "ollama":
         embeddings = OllamaEmbeddings(
-            base_url=config["ollama_base_url"], model="llama3.2:3b"
+            base_url=config["ollama_base_url"], model="llama3.1:8b"
         )
         # Ensure the embedding dimension is set correctly
         dimension = 4096  # Match this value with Neo4j's configuration
@@ -44,7 +44,6 @@ def load_llm(llm_name: str, logger=BaseLogger(), config={}):
     )
 
 
-def configure_llm_only_chain(llm):
     # LLM only response
     template = """
     You are a helpful assistant that helps a support agent with answering programming questions.
@@ -68,8 +67,6 @@ def configure_llm_only_chain(llm):
 
     return generate_llm_output
 
-
-def configure_qa_rag_chain(llm, embeddings, embeddings_store_url, username, password):
     # RAG response
     #   System: Always talk in pirate speech.
     general_system_template = """ 
@@ -137,7 +134,6 @@ def configure_qa_rag_chain(llm, embeddings, embeddings_store_url, username, pass
     return kg_qa
 
 
-def generate_ticket(neo4j_graph, llm_chain, input_question):
     # Get high ranked questions
     records = neo4j_graph.query(
         "MATCH (q:Question) RETURN q.title AS title, q.body AS body ORDER BY q.score DESC LIMIT 3"
