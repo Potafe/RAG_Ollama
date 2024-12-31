@@ -17,6 +17,7 @@ from langchain.prompts import (
 from typing import List, Any
 from utils import BaseLogger, extract_title_and_question
 
+from langchain_huggingface import HuggingFaceEmbeddings
 
 def load_embedding_model(embedding_model_name: str, logger=BaseLogger(), config={}):
     if embedding_model_name == "ollama":
@@ -26,6 +27,13 @@ def load_embedding_model(embedding_model_name: str, logger=BaseLogger(), config=
         # Ensure the embedding dimension is set correctly
         dimension = 4096  # Match this value with Neo4j's configuration
         logger.info(f"Embedding: Using Ollama with dimension {dimension}")
+
+    else:
+        embeddings = HuggingFaceEmbeddings(
+            model_name="SFR-Embedding-2_R", cache_folder="/embedding_model"
+        )
+        dimension = 384
+        logger.info("Embedding: Using SentenceTransformer")
     return embeddings, dimension
 
 
